@@ -1,0 +1,5 @@
+.vs/*
+*.vs
+AccurateCrosshair/bin/*
+AccurateCrosshair/lib/*
+AccurateCrosshair/obj/*

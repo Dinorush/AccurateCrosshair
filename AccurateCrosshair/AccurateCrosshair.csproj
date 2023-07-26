@@ -1,0 +1,105 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+	<Reference Include="lib\0Harmony.dll">
+	  <Private>false</Private>
+	</Reference>
+	<Reference Include="lib\Addons-ASM.dll">
+	  <Private>false</Private>
+	</Reference>
+	<Reference Include="lib\AssetPrefabs-ASM.dll">
+	  <Private>false</Private>
+	</Reference>
+	<Reference Include="lib\Assets-ASM.dll">
+	  <Private>false</Private>
+	</Reference>
+	<Reference Include="lib\BepInEx.Core.dll">
+	  <Private>false</Private>
+	</Reference>
+	<Reference Include="lib\BepInEx.Unity.IL2CPP.dll">
+	  <Private>false</Private>
+	</Reference>
+	<Reference Include="lib\CellSound-ASM.dll">
+	  <Private>false</Private>
+	</Reference>
+	<Reference Include="lib\DevConsoleCommands-ASM.dll">
+	  <Private>false</Private>
+	</Reference>
+	<Reference Include="lib\DevConsoloe-ASM.dll">
+	  <Private>false</Private>
+	</Reference>
+	<Reference Include="lib\Dissonance-integrations-ASM.dll">
+	  <Private>false</Private>
+	</Reference>
+	<Reference Include="lib\DropServerSDK-ASM.dll">
+	  <Private>false</Private>
+	</Reference>
+	<Reference Include="lib\ExcludeInBuild-ASM.dll">
+	  <Private>false</Private>
+	</Reference>
+	<Reference Include="lib\GameData-ASM.dll">
+	  <Private>false</Private>
+	</Reference>
+	<Reference Include="lib\GlobalFramework-ASM.dll">
+	  <Private>false</Private>
+	</Reference>
+	<Reference Include="lib\GUIX-ASM.dll">
+	  <Private>false</Private>
+	</Reference>
+	<Reference Include="lib\Il2Cppmscorlib.dll">
+	  <Private>false</Private>
+	</Reference>
+	<Reference Include="lib\Il2CppInterop.Runtime.dll">
+		<Private>false</Private>
+	</Reference>
+	<Reference Include="lib\Modules-ASM.dll">
+	  <Private>false</Private>
+	</Reference>
+	<Reference Include="lib\PlayFab-ASM.dll">
+	  <Private>false</Private>
+	</Reference>
+	<Reference Include="lib\Plugins-ASM.dll">
+	  <Private>false</Private>
+	</Reference>
+	<Reference Include="lib\Prototypes_ASM.dll">
+	  <Private>false</Private>
+	</Reference>
+	<Reference Include="lib\Resources-ASM.dll">
+	  <Private>false</Private>
+	</Reference>
+	<Reference Include="lib\RootMotion-ASM.dll">
+	  <Private>false</Private>
+	</Reference>
+	<Reference Include="lib\Scenes-ASM.dll">
+	  <Private>false</Private>
+	</Reference>
+	<Reference Include="lib\Shards-ASM.dll">
+	  <Private>false</Private>
+	</Reference>
+	<Reference Include="lib\SNet_ASM.dll">
+	  <Private>false</Private>
+	</Reference>
+	<Reference Include="lib\StandardAssets-ASM.dll">
+	  <Private>false</Private>
+	</Reference>
+	<Reference Include="lib\SteamWorks_ASM.dll">
+	  <Private>false</Private>
+	</Reference>
+	<Reference Include="lib\UnityEngine.CoreModule.dll">
+	  <Private>false</Private>
+	</Reference>
+	<Reference Include="lib\UnityEngine.dll">
+	  <Private>false</Private>
+	</Reference>
+	<Reference Include="lib\Utils-ASM.dll">
+	  <Private>false</Private>
+	</Reference>
+	<Reference Include="lib\Wwise-ASM.dll">
+	  <Private>false</Private>
+	</Reference>
+  </ItemGroup>
+  <PropertyGroup>
+    <TargetFramework>net6</TargetFramework>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+</Project>
