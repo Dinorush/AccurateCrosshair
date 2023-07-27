@@ -5,8 +5,8 @@ using HarmonyLib;
 
 namespace AccurateCrosshair
 {
-    [BepInPlugin("Dinorush.AccurateCrosshair", "AccurateCrosshair", "1.0.0")]
-    public class Loader : BasePlugin
+    [BepInPlugin("Dinorush." + MODNAME, MODNAME, "1.0.0")]
+    internal class Loader : BasePlugin
     {
         public const string MODNAME = "AccurateCrosshair";
 
@@ -14,11 +14,11 @@ namespace AccurateCrosshair
 
         public override void Load()
         {
-            Logger = base.Log;
-            base.Log.LogMessage("Loading " + MODNAME);
+            Logger = Log;
+            Logger.LogMessage("Loading " + MODNAME);
             Configuration.CreateAndBindAll();
             new Harmony(MODNAME).PatchAll(typeof(CrosshairPatches));
-            base.Log.LogMessage("Loaded " + MODNAME);
+            Logger.LogMessage("Loaded " + MODNAME);
         }
     }
 }
