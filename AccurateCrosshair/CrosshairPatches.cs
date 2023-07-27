@@ -11,8 +11,6 @@ namespace AccurateCrosshair
         private const float BASE_CROSSHAIR_SIZE = 20.0f;   // The base size (from testing) that the crosshair should be at 90 FOV (when tan(FoV/2) = 1)
         private const float EXTRA_BUFFER_SIZE = 10.0f; // Flat value added to account for the actual reticle, so as to not cover possible shot locations.
 
-        private static PlayerAgent? cachedPlayer = null;
-
         [HarmonyPatch(typeof(GameDataInit), nameof(GameDataInit.Initialize))]
         [HarmonyPostfix]
         private static void RemovePopFromDatablocks()
@@ -30,13 +28,11 @@ namespace AccurateCrosshair
         [HarmonyPrefix]
         private static void AdjustCrosshairSize(CrosshairGuiLayer __instance, ref float crosshairSize)
         {
-            cachedPlayer ??= PlayerManager.GetLocalPlayerAgent();
             float playerFoV = CellSettingsManager.SettingsData.Video.Fov.Value;
-
-            ItemEquippable heldItem = cachedPlayer.Inventory.m_wieldedItem;
+            ItemEquippable heldItem = PlayerManager.GetLocalPlayerAgent().Inventory.m_wieldedItem;
 
             bool isShotgun = false;
-            ItemDataBlock itemData = heldItem.ItemDataBlock;
+            ItemDataBlock? itemData = heldItem.ItemDataBlock;
             if (itemData != null)
             {
                 List<string> prefabs = itemData.FirstPersonPrefabs;
@@ -47,7 +43,7 @@ namespace AccurateCrosshair
                 }
             }
 
-            ArchetypeDataBlock archetypeData = heldItem.ArchetypeData;
+            ArchetypeDataBlock? archetypeData = heldItem.ArchetypeData;
             if (archetypeData == null)
                 return;
 
