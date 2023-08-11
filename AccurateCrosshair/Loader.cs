@@ -17,7 +17,7 @@ namespace AccurateCrosshair
         public override void Load()
         {
 #if DEBUG
-        `   Logger = Log;
+            Logger = Log;
 #endif
             Log.LogMessage("Loading " + MODNAME);
             Configuration.CreateAndBindAll();
