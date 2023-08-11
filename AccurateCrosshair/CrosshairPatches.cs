@@ -51,7 +51,7 @@ namespace AccurateCrosshair
             float spread = isShotgun ? archetypeData.ShotgunConeSize + archetypeData.ShotgunBulletSpread : archetypeData.HipFireSpread;
             float newSize = Math.Max(Configuration.crosshairMinSize, spread * sizeMultiplier + EXTRA_BUFFER_SIZE);
 
-            __instance.m_dotSize = (crosshairSize = newSize);
+            crosshairSize = newSize;
         }
     }
 }
