@@ -5,7 +5,6 @@ using UnityEngine;
 using GameData;
 using CollectionExtensions = BepInEx.Unity.IL2CPP.Utils.Collections.CollectionExtensions;
 using System;
-using static GameData.GD;
 
 namespace AccurateCrosshair.CrosshairPatches
 {
