@@ -55,7 +55,8 @@ namespace AccurateCrosshair.CrosshairPatches
             else
             {
                 // EnableSmallCrosshair runs before ShowSpreadCircle does so its Match changes get overriden unless we modify this.
-                crosshairSize = Math.Max(crosshairSize * 0.2f, Configuration.minSize);
+                if (Configuration.firstShotType == FirstShotType.Match)
+                    crosshairSize = Math.Max(crosshairSize * 0.2f, Configuration.minSize);
 
                 // Called on prefix to ShowSpreadCircle, so need to force Gui on since the main Crosshair is not yet visible.
                 EnableSmallCrosshair(true);
