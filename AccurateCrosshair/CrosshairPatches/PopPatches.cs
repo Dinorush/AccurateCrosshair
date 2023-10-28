@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace AccurateCrosshair.CrosshairPatches
 {
-    internal class PopPatches
+    internal static class PopPatches
     {
         [HarmonyPatch(typeof(CrosshairGuiLayer), nameof(CrosshairGuiLayer.PopCircleCrosshair))]
         [HarmonyPrefix]

@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace AccurateCrosshair.CrosshairPatches
 {
-    internal class FirstShotGui : GuiLayer
+    internal sealed class FirstShotGui : GuiLayer
     {
         private CircleCrosshair? smallCrosshair;
 

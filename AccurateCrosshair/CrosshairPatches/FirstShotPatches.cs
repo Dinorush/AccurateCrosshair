@@ -8,7 +8,7 @@ using System;
 
 namespace AccurateCrosshair.CrosshairPatches
 {
-    internal class FirstShotPatches
+    internal static class FirstShotPatches
     {
         private static Coroutine? firstShotRoutine = null;
         private static float firstShotTime = 0f;

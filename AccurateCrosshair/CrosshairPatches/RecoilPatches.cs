@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace AccurateCrosshair.CrosshairPatches
 {
-    internal class RecoilPatches
+    internal static class RecoilPatches
     {
         [HarmonyPatch(typeof(CrosshairGuiLayer), nameof(CrosshairGuiLayer.ShowSpreadCircle))]
         [HarmonyWrapSafe]

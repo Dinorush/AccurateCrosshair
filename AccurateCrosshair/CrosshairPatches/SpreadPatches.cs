@@ -8,7 +8,7 @@ using System;
 
 namespace AccurateCrosshair.CrosshairPatches
 {
-    internal class SpreadPatches
+    internal static class SpreadPatches
     {
         private const float BASE_CROSSHAIR_SIZE = 20.0f; // The base size (from testing) that the crosshair should be at 90 FOV (when tan(FoV/2) = 1)
         private const float EXTRA_BUFFER_SIZE = 10.0f;   // Flat value added to account for the actual reticle, so as to not cover possible shot locations.
