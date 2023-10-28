@@ -8,7 +8,7 @@ using System.Diagnostics;
 namespace AccurateCrosshair
 {
     [BepInPlugin("Dinorush." + MODNAME, MODNAME, "1.1.0")]
-    internal class Loader : BasePlugin
+    internal sealed class Loader : BasePlugin
     {
         public const string MODNAME = "AccurateCrosshair";
 
