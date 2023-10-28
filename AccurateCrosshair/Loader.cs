@@ -3,6 +3,7 @@ using BepInEx;
 using BepInEx.Logging;
 using BepInEx.Unity.IL2CPP;
 using HarmonyLib;
+using System.Diagnostics;
 
 namespace AccurateCrosshair
 {
@@ -12,9 +13,10 @@ namespace AccurateCrosshair
         public const string MODNAME = "AccurateCrosshair";
 
 #if DEBUG
-        public static ManualLogSource Logger;
+        private static ManualLogSource Logger;
 #endif
 
+        [Conditional("DEBUG")]
         public static void DebugLog(object data)
         {
 #if DEBUG
