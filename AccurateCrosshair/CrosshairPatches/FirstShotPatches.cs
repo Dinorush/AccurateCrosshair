@@ -81,11 +81,4 @@ namespace AccurateCrosshair.CrosshairPatches
             firstShotRoutine ??= CoroutineManager.StartCoroutine(CollectionExtensions.WrapToIl2Cpp(MinimizeAfterDelay()));
         }
     }
-
-    public enum FirstShotType
-    {
-        None,
-        Match,
-        Inner
-    }
 }
