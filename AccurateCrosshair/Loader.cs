@@ -1,13 +1,19 @@
 ﻿using AccurateCrosshair.CrosshairPatches;
+using AccurateCrosshair.PluginDependencies;
 using BepInEx;
 using BepInEx.Logging;
 using BepInEx.Unity.IL2CPP;
+using GTFO.API;
 using HarmonyLib;
+using System;
 using System.Diagnostics;
+using System.Linq;
 
 namespace AccurateCrosshair
 {
-    [BepInPlugin("Dinorush." + MODNAME, MODNAME, "1.1.0")]
+    [BepInPlugin("Dinorush." + MODNAME, MODNAME, "1.2.0")]
+    [BepInDependency("dev.gtfomodding.gtfo-api", BepInDependency.DependencyFlags.HardDependency)]
+    [BepInDependency("Dinorush.ColorCrosshair", BepInDependency.DependencyFlags.SoftDependency)]
     internal sealed class Loader : BasePlugin
     {
         public const string MODNAME = "AccurateCrosshair";
@@ -43,7 +49,13 @@ namespace AccurateCrosshair
             if (Configuration.firstShotType == FirstShotType.Inner)
                 harmonyInstance.PatchAll(typeof(FirstShotGuiPatches));
 
+            AssetAPI.OnStartupAssetsLoaded += AssetAPI_OnStartupAssetsLoaded;
             Log.LogMessage("Loaded " + MODNAME);
+        }
+
+        private void AssetAPI_OnStartupAssetsLoaded()
+        {
+            ColorCrosshairDependency.Init();
         }
     }
 }
