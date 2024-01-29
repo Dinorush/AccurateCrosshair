@@ -11,7 +11,7 @@ using System.Linq;
 
 namespace AccurateCrosshair
 {
-    [BepInPlugin("Dinorush." + MODNAME, MODNAME, "1.2.1")]
+    [BepInPlugin("Dinorush." + MODNAME, MODNAME, "1.3.0")]
     [BepInDependency("dev.gtfomodding.gtfo-api", BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency("Dinorush.ColorCrosshair", BepInDependency.DependencyFlags.SoftDependency)]
     internal sealed class Loader : BasePlugin

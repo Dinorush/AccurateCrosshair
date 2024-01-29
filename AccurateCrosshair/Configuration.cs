@@ -12,6 +12,7 @@ namespace AccurateCrosshair
         public static float firstShotMinDelay = 0.15f;
         public static bool popEnabled = false;
         public static float minSize = 10.0f;
+        public static float speedScalar = 1.0f;
 
         public static void CreateAndBindAll()
         {
@@ -43,8 +44,13 @@ namespace AccurateCrosshair
             popEnabled = config.Bind(new ConfigDefinition(section, key), popEnabled, new ConfigDescription(description, null)).Value;
 
             key = "Minimum Size";
-            description = "The minimum size of the reticle. Does not scale with field of view.";
+            description = "The minimum size of the reticle. Does not scale with field of view.\r\nNote: Cannot be smaller than 10.";
             minSize = config.Bind(new ConfigDefinition(section, key), minSize, new ConfigDescription(description, null)).Value;
+
+            key = "Resize Modifier";
+            description = "Scalar applied to the speed at which the crosshair resizes to its target spread.\r\nNote: Must be larger than 0. Does not affect the resize speed of pop.";
+            speedScalar = config.Bind(new ConfigDefinition(section, key), speedScalar, new ConfigDescription(description, null)).Value;
+            if (speedScalar <= 0) speedScalar = 1.0f;
         }
     }
 }

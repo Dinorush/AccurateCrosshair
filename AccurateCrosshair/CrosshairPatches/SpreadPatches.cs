@@ -51,5 +51,13 @@ namespace AccurateCrosshair.CrosshairPatches
             if (!isShotgun && Configuration.firstShotType != FirstShotType.None)
                 FirstShotPatches.SetStoredCrosshair(weapon, ref crosshairSize);
         }
+
+        [HarmonyPatch(typeof(CrosshairGuiLayer), nameof(CrosshairGuiLayer.Setup))]
+        [HarmonyWrapSafe]
+        [HarmonyPostfix]
+        private static void AdjustResizeSpeed(CrosshairGuiLayer __instance)
+        {
+            __instance.m_circleSpeed *= Configuration.speedScalar;
+        }
     }
 }
