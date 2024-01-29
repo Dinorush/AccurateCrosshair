@@ -11,7 +11,8 @@ namespace AccurateCrosshair.PluginDependencies
         {
             get
             {
-                return IL2CPPChainloader.Instance.Plugins.ContainsKey("Dinorush.ColorCrosshair");
+                bool result = IL2CPPChainloader.Instance.Plugins.ContainsKey("Dinorush.ColorCrosshair");
+                return result;
             }
         }
 
@@ -19,10 +20,13 @@ namespace AccurateCrosshair.PluginDependencies
         {
             // If using the inner reticle to show first shot accuracy, need to match its color accordingly
             if (HasColorCrosshair && Configuration.firstShotType == FirstShotType.Inner)
-            {
-                FirstShotGuiPatches.RefreshCrosshairColor();
-                ColorCrosshairAPI.OnReload += ApplyColorChanges;
-            }
+                UnsafeInit();
+        }
+
+        public static void UnsafeInit()
+        {
+            FirstShotGuiPatches.RefreshCrosshairColor();
+            ColorCrosshairAPI.OnReload += ApplyColorChanges;
         }
 
         private static void ApplyColorChanges()
