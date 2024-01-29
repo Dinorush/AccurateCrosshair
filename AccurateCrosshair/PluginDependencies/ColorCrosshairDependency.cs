@@ -23,7 +23,7 @@ namespace AccurateCrosshair.PluginDependencies
                 UnsafeInit();
         }
 
-        public static void UnsafeInit()
+        private static void UnsafeInit()
         {
             FirstShotGuiPatches.RefreshCrosshairColor();
             ColorCrosshairAPI.OnReload += ApplyColorChanges;
