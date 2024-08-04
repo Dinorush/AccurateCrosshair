@@ -1,8 +1,6 @@
-﻿using BepInEx.Logging;
-using GameData;
+﻿using GameData;
 using Gear;
 using HarmonyLib;
-using Il2CppSystem.Collections.Generic;
 using Player;
 using System;
 
@@ -23,6 +21,14 @@ namespace AccurateCrosshair.CrosshairPatches
             GuiManager.CrosshairLayer.ScaleToSize(GuiManager.CrosshairLayer.m_neutralCircleSize = crosshairSize);
         }
 
+        [HarmonyPatch(typeof(CrosshairGuiLayer), nameof(CrosshairGuiLayer.ShowPrecisionDot))]
+        [HarmonyWrapSafe]
+        [HarmonyPostfix]
+        private static void ShowAimCrosshair(CrosshairGuiLayer __instance)
+        {
+            __instance.ShowSpreadCircle(__instance.m_dotSize);
+        }
+
         [HarmonyPatch(typeof(CrosshairGuiLayer), nameof(CrosshairGuiLayer.ShowSpreadCircle))]
         [HarmonyWrapSafe]
         [HarmonyPrefix]
@@ -31,19 +37,28 @@ namespace AccurateCrosshair.CrosshairPatches
             if (Configuration.firstShotType != FirstShotType.None)
                 FirstShotPatches.ResetStoredCrosshair();
 
-            BulletWeapon? weapon = PlayerManager.GetLocalPlayerAgent().Inventory.m_wieldedItem.TryCast<BulletWeapon>();
+            PlayerAgent player = PlayerManager.GetLocalPlayerAgent();
+            BulletWeapon? weapon = player.Inventory.m_wieldedItem.TryCast<BulletWeapon>();
             if (weapon == null)
                 return;
+            bool aim = player.FPItemHolder.ItemAimTrigger;
 
             isShotgun = weapon.TryCast<Shotgun>() != null;
 
             float playerFoV = CellSettingsManager.SettingsData.Video.Fov.Value;
+            if (aim)
+                playerFoV = weapon.GetWorldCameraZoomFov();
+
             ArchetypeDataBlock? archetypeData = weapon.ArchetypeData;
             if (archetypeData == null) // We need a spread value to do anything
                 return;
 
             float sizeMultiplier = (float)(BASE_CROSSHAIR_SIZE / Math.Tan(Math.PI / 180.0 * playerFoV / 2));
-            float spread = isShotgun ? archetypeData.ShotgunConeSize + archetypeData.ShotgunBulletSpread : archetypeData.HipFireSpread;
+            float spread;
+            if (isShotgun)
+                spread = archetypeData.ShotgunConeSize + archetypeData.ShotgunBulletSpread;
+            else
+                spread = aim ? archetypeData.AimSpread : archetypeData.HipFireSpread;
             float newSize = Math.Max(Configuration.minSize, spread * sizeMultiplier + EXTRA_BUFFER_SIZE);
 
             crosshairSize = newSize;
