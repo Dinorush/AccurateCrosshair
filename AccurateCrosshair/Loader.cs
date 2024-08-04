@@ -5,13 +5,11 @@ using BepInEx.Logging;
 using BepInEx.Unity.IL2CPP;
 using GTFO.API;
 using HarmonyLib;
-using System;
 using System.Diagnostics;
-using System.Linq;
 
 namespace AccurateCrosshair
 {
-    [BepInPlugin("Dinorush." + MODNAME, MODNAME, "1.3.0")]
+    [BepInPlugin("Dinorush." + MODNAME, MODNAME, "1.4.0")]
     [BepInDependency("dev.gtfomodding.gtfo-api", BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency("Dinorush.ColorCrosshair", BepInDependency.DependencyFlags.SoftDependency)]
     internal sealed class Loader : BasePlugin
