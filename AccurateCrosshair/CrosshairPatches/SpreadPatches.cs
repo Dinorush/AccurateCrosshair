@@ -11,6 +11,7 @@ namespace AccurateCrosshair.CrosshairPatches
         private const float BASE_CROSSHAIR_SIZE = 20.0f; // The base size (from testing) that the crosshair should be at 90 FOV (when tan(FoV/2) = 1)
         private const float EXTRA_BUFFER_SIZE = 10.0f;   // Flat value added to account for the actual reticle, so as to not cover possible shot locations.
         public static bool isShotgun = false;
+        private static bool _cachedAim = false;
 
         public static void SetCrosshairSize(float crosshairSize)
         {
@@ -26,6 +27,7 @@ namespace AccurateCrosshair.CrosshairPatches
         [HarmonyPostfix]
         private static void ShowAimCrosshair(CrosshairGuiLayer __instance)
         {
+            _cachedAim = true;
             __instance.ShowSpreadCircle(__instance.m_dotSize);
         }
 
@@ -37,11 +39,14 @@ namespace AccurateCrosshair.CrosshairPatches
             if (Configuration.firstShotType != FirstShotType.None)
                 FirstShotPatches.ResetStoredCrosshair();
 
+            bool aim = _cachedAim;
+            if (aim)
+                _cachedAim = false;
+
             PlayerAgent player = PlayerManager.GetLocalPlayerAgent();
             BulletWeapon? weapon = player.Inventory.m_wieldedItem.TryCast<BulletWeapon>();
             if (weapon == null)
                 return;
-            bool aim = player.FPItemHolder.ItemAimTrigger;
 
             isShotgun = weapon.TryCast<Shotgun>() != null;
 
