@@ -9,7 +9,7 @@ using System.Diagnostics;
 
 namespace AccurateCrosshair
 {
-    [BepInPlugin("Dinorush." + MODNAME, MODNAME, "1.4.0")]
+    [BepInPlugin("Dinorush." + MODNAME, MODNAME, "1.4.1")]
     [BepInDependency("dev.gtfomodding.gtfo-api", BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency("Dinorush.ColorCrosshair", BepInDependency.DependencyFlags.SoftDependency)]
     internal sealed class Loader : BasePlugin
