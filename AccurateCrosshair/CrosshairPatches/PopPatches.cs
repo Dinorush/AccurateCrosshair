@@ -1,10 +1,4 @@
-﻿using GameData;
-using HarmonyLib;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using HarmonyLib;
 
 namespace AccurateCrosshair.CrosshairPatches
 {
@@ -12,7 +6,7 @@ namespace AccurateCrosshair.CrosshairPatches
     {
         [HarmonyPatch(typeof(CrosshairGuiLayer), nameof(CrosshairGuiLayer.PopCircleCrosshair))]
         [HarmonyPrefix]
-        public static bool CancelRecoilPop(CrosshairGuiLayer __instance, float pop, float sizeMax)
+        public static bool CancelRecoilPop()
         {
             return false;
         }

@@ -1,82 +1,160 @@
-﻿using GameData;
+﻿using BepInEx.Unity.IL2CPP.Utils.Collections;
+using FirstPersonItem;
+using GameData;
 using Gear;
 using HarmonyLib;
 using Player;
 using System;
+using System.Collections;
+using UnityEngine;
 
 namespace AccurateCrosshair.CrosshairPatches
 {
+    [HarmonyPatch]
     internal static class SpreadPatches
     {
         private const float BASE_CROSSHAIR_SIZE = 20.0f; // The base size (from testing) that the crosshair should be at 90 FOV (when tan(FoV/2) = 1)
         private const float EXTRA_BUFFER_SIZE = 10.0f;   // Flat value added to account for the actual reticle, so as to not cover possible shot locations.
         public static bool isShotgun = false;
         private static bool _cachedAim = false;
+        private static bool _validGun = false;
+
+#pragma warning disable CS8618
+        public static CrosshairGuiLayer CrosshairLayer;
+#pragma warning restore CS8618
+        private static FirstPersonItemHolder? _cachedHolder;
+        private static LerpingPairFloat? _cachedLookFoV;
+        private static Coroutine? _smoothRoutine;
+        private static float _spreadScalar = 1f;
+        private static float _targetSpread;
+
+        public static void UpdateSpreadScalar(float scalar)
+        {
+            _spreadScalar = scalar;
+            SetCrosshairSize(GetCrosshairSize());
+        }
 
         public static void SetCrosshairSize(float crosshairSize)
         {
-            if (Configuration.firstShotType != FirstShotType.Match || crosshairSize < 0)
-                return;
+            if (!_validGun) return;
 
-            crosshairSize = Math.Max(Configuration.minSize, crosshairSize);
-            GuiManager.CrosshairLayer.ScaleToSize(GuiManager.CrosshairLayer.m_neutralCircleSize = crosshairSize);
+            CrosshairLayer.ScaleToSize(CrosshairLayer.m_neutralCircleSize = crosshairSize);
+            if (Configuration.firstShotType == FirstShotType.Inner)
+                FirstShotGuiPatches.RefreshCrosshairSize();
         }
 
-        [HarmonyPatch(typeof(CrosshairGuiLayer), nameof(CrosshairGuiLayer.ShowPrecisionDot))]
+        public static void OnCleanup()
+        {
+            _cachedAim = false;
+            _spreadScalar = 1f;
+            _validGun = false;
+        }
+
+        [HarmonyPatch(typeof(FirstPersonItemHolder), nameof(FirstPersonItemHolder.Setup))]
         [HarmonyWrapSafe]
         [HarmonyPostfix]
-        private static void ShowAimCrosshair(CrosshairGuiLayer __instance)
+        private static void UpdateCache(FirstPersonItemHolder __instance)
+        {
+            _cachedHolder = __instance;
+            _cachedLookFoV = __instance.LookCamFov;
+        }
+
+        [HarmonyPatch(typeof(FPIS_Aim), nameof(FPIS_Aim.Enter))]
+        [HarmonyWrapSafe]
+        [HarmonyPostfix]
+        private static void EnterAimState(FPIS_Aim __instance)
         {
             _cachedAim = true;
-            __instance.ShowSpreadCircle(__instance.m_dotSize);
+            if (__instance.Holder.WieldedItem.ItemDataBlock.ShowCrosshairWhenAiming)
+                CrosshairLayer.ShowSpreadCircle(CrosshairLayer.m_dotSize);
+            else if (_smoothRoutine != null)
+            {
+                CoroutineManager.StopCoroutine(_smoothRoutine);
+                _smoothRoutine = null;
+            }
+        }
+
+        [HarmonyPatch(typeof(FPIS_Aim), nameof(FPIS_Aim.Exit))]
+        [HarmonyWrapSafe]
+        [HarmonyPostfix]
+        private static void ExitAimState()
+        {
+            _cachedAim = false;
         }
 
         [HarmonyPatch(typeof(CrosshairGuiLayer), nameof(CrosshairGuiLayer.ShowSpreadCircle))]
         [HarmonyWrapSafe]
         [HarmonyPrefix]
-        private static void AdjustCrosshairSize(CrosshairGuiLayer __instance, ref float crosshairSize)
+        private static void AdjustCrosshairSize(ref float crosshairSize)
         {
+            if (!OverrideCrosshairSize(ref crosshairSize) && _smoothRoutine != null)
+            {
+                CoroutineManager.StopCoroutine(_smoothRoutine);
+                _smoothRoutine = null;
+            }
+            else
+                _smoothRoutine ??= CoroutineManager.StartCoroutine(ScaleSpreadCircle().WrapToIl2Cpp());
+        }
+
+        private static bool OverrideCrosshairSize(ref float crosshairSize)
+        {
+            _validGun = false;
+            if (_cachedLookFoV == null) return false;
+
             if (Configuration.firstShotType != FirstShotType.None)
                 FirstShotPatches.ResetStoredCrosshair();
 
-            bool aim = _cachedAim;
-            if (aim)
-                _cachedAim = false;
-
             PlayerAgent player = PlayerManager.GetLocalPlayerAgent();
             BulletWeapon? weapon = player.Inventory.m_wieldedItem.TryCast<BulletWeapon>();
-            if (weapon == null)
-                return;
+            if (weapon == null) return false;
 
             isShotgun = weapon.TryCast<Shotgun>() != null;
 
-            float playerFoV = CellSettingsManager.SettingsData.Video.Fov.Value;
-            if (aim)
-                playerFoV = weapon.GetWorldCameraZoomFov();
-
             ArchetypeDataBlock? archetypeData = weapon.ArchetypeData;
-            if (archetypeData == null) // We need a spread value to do anything
-                return;
+            if (archetypeData == null) return false;
 
-            float sizeMultiplier = (float)(BASE_CROSSHAIR_SIZE / Math.Tan(Math.PI / 180.0 * playerFoV / 2));
+            _validGun = true;
             float spread;
             if (isShotgun)
                 spread = archetypeData.ShotgunConeSize + archetypeData.ShotgunBulletSpread;
             else
-                spread = aim ? archetypeData.AimSpread : archetypeData.HipFireSpread;
-            float newSize = Math.Max(Configuration.minSize, spread * sizeMultiplier + EXTRA_BUFFER_SIZE);
-
-            crosshairSize = newSize;
+                spread = _cachedAim ? archetypeData.AimSpread : archetypeData.HipFireSpread;
+            _targetSpread = spread;
 
             if (!isShotgun && Configuration.firstShotType != FirstShotType.None)
-                FirstShotPatches.SetStoredCrosshair(weapon, ref crosshairSize);
+                FirstShotPatches.SetStoredCrosshair(weapon);
+            crosshairSize = GetCrosshairSize();
+
+            return true;
         }
+
+        private static IEnumerator ScaleSpreadCircle()
+        {
+            while (_validGun && _cachedLookFoV != null && _cachedLookFoV.CurrentLerp < 1f)
+            {
+                SetCrosshairSize(GetCrosshairSize());
+                yield return null;
+            }
+
+            _smoothRoutine = null;
+            if (_cachedLookFoV == null) yield break;
+            SetCrosshairSize(GetCrosshairSize());
+        }
+
+        public static float GetCrosshairSize(float scalar)
+        {
+            float sizeMultiplier = (float)(BASE_CROSSHAIR_SIZE / Math.Tan(Math.PI / 180.0 * _cachedLookFoV!.Current / 2));
+            return Math.Max(Configuration.minSize, _targetSpread * sizeMultiplier * scalar + EXTRA_BUFFER_SIZE);
+        }
+
+        public static float GetCrosshairSize() => GetCrosshairSize(_spreadScalar);
 
         [HarmonyPatch(typeof(CrosshairGuiLayer), nameof(CrosshairGuiLayer.Setup))]
         [HarmonyWrapSafe]
         [HarmonyPostfix]
         private static void AdjustResizeSpeed(CrosshairGuiLayer __instance)
         {
+            CrosshairLayer = __instance;
             __instance.m_circleSpeed *= Configuration.speedScalar;
         }
     }

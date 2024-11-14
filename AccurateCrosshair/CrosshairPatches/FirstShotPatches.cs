@@ -3,8 +3,7 @@ using HarmonyLib;
 using System.Collections;
 using UnityEngine;
 using GameData;
-using CollectionExtensions = BepInEx.Unity.IL2CPP.Utils.Collections.CollectionExtensions;
-using System;
+using BepInEx.Unity.IL2CPP.Utils.Collections;
 
 namespace AccurateCrosshair.CrosshairPatches
 {
@@ -13,14 +12,13 @@ namespace AccurateCrosshair.CrosshairPatches
         private static Coroutine? firstShotRoutine = null;
         private static float firstShotTime = 0f;
         private static float fireRecoilCooldown = 2f;
-        private static float storedCrosshairSize = -1f;
 
         private static void EnableSmallCrosshair(bool forceGuiOn = false)
         {
             if (Configuration.firstShotType == FirstShotType.Match)
-                SpreadPatches.SetCrosshairSize(storedCrosshairSize * 0.2f);
+                SpreadPatches.UpdateSpreadScalar(0.2f);
             else if (Configuration.firstShotType == FirstShotType.Inner)
-                FirstShotGuiPatches.Enable(storedCrosshairSize, forceGuiOn);
+                FirstShotGuiPatches.Enable(forceGuiOn);
         }
 
         private static IEnumerator MinimizeAfterDelay()
@@ -30,34 +28,23 @@ namespace AccurateCrosshair.CrosshairPatches
                 yield return new WaitForSeconds(firstShotTime - Clock.Time);
 
             firstShotRoutine = null;
-
-            // If we swapped to an invalid weapon, stop before setting the crosshair size.
-            if (storedCrosshairSize < 0)
-                yield break;
-
             EnableSmallCrosshair();
         }
 
-
-        public static void SetStoredCrosshair(BulletWeapon weapon, ref float crosshairSize)
+        public static void SetStoredCrosshair(BulletWeapon weapon)
         {
             ArchetypeDataBlock? archetypeData = weapon.ArchetypeData;
             if (Configuration.firstShotType == FirstShotType.Match &&
                 archetypeData.FireMode != 0 && archetypeData.ShotDelay < Configuration.firstShotMinDelay)
                 return;
 
-            storedCrosshairSize = crosshairSize;
             fireRecoilCooldown = weapon.m_fireRecoilCooldown;
             firstShotTime = weapon.m_lastFireTime + fireRecoilCooldown;
 
             if (firstShotTime > Clock.Time)
-                firstShotRoutine ??= CoroutineManager.StartCoroutine(CollectionExtensions.WrapToIl2Cpp(MinimizeAfterDelay()));
+                firstShotRoutine ??= CoroutineManager.StartCoroutine(MinimizeAfterDelay().WrapToIl2Cpp());
             else
             {
-                // EnableSmallCrosshair runs before ShowSpreadCircle does so its Match changes get overriden unless we modify this.
-                if (Configuration.firstShotType == FirstShotType.Match)
-                    crosshairSize = Math.Max(crosshairSize * 0.2f, Configuration.minSize);
-
                 // Called on prefix to ShowSpreadCircle, so need to force Gui on since the main Crosshair is not yet visible.
                 EnableSmallCrosshair(true);
             }
@@ -65,20 +52,24 @@ namespace AccurateCrosshair.CrosshairPatches
 
         public static void ResetStoredCrosshair()
         {
-            // Coroutine will end on its own if needed if size < 0.
-            storedCrosshairSize = -1;
+            if (firstShotRoutine != null)
+            {
+                CoroutineManager.StopCoroutine(firstShotRoutine);
+                firstShotRoutine = null;
+            }
+            SpreadPatches.UpdateSpreadScalar(1f);
             FirstShotGuiPatches.Disable();
         }
 
         [HarmonyPatch(typeof(BulletWeapon), nameof(BulletWeapon.Fire))]
         [HarmonyWrapSafe]
         [HarmonyPostfix]
-        private static void ResetFirstShotTimer(BulletWeapon __instance)
+        private static void ResetFirstShotTimer()
         {
             firstShotTime = Clock.Time + fireRecoilCooldown;
-            SpreadPatches.SetCrosshairSize(storedCrosshairSize);
+            SpreadPatches.UpdateSpreadScalar(1f);
             FirstShotGuiPatches.Disable();
-            firstShotRoutine ??= CoroutineManager.StartCoroutine(CollectionExtensions.WrapToIl2Cpp(MinimizeAfterDelay()));
+            firstShotRoutine ??= CoroutineManager.StartCoroutine(MinimizeAfterDelay().WrapToIl2Cpp());
         }
     }
 }

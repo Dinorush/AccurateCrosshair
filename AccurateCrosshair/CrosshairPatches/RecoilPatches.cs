@@ -24,12 +24,12 @@ namespace AccurateCrosshair.CrosshairPatches
 
             // The spread of the crosshair is actually the entire layer scaling size.
             // Need to adjust the offset of recoil by the scale to get it to map properly to UI.
-            float scale = GuiManager.CrosshairLayer.m_circleCrosshair.GetScale();
+            float scale = SpreadPatches.CrosshairLayer.m_circleCrosshair.GetScale();
             Vector2 centeredPos = __instance.CurrentVSPos - new Vector2(0.5f, 0.5f);
 
             // For some reason, the y component of the recoil is higher than it should be.
             centeredPos.y *= .78f; // Based on testing. Is probably related to 1440/2560 (the crosshair GUI layer size). 1-(1-1440/2560)/2 is about this value.
-            GuiManager.CrosshairLayer.SetCrosshairPosition(centeredPos / scale + new Vector2(0.5f, 0.5f));
+            SpreadPatches.CrosshairLayer.SetCrosshairPosition(centeredPos / scale + new Vector2(0.5f, 0.5f));
         }
     }
 }

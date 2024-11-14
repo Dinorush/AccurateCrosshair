@@ -48,12 +48,18 @@ namespace AccurateCrosshair
                 harmonyInstance.PatchAll(typeof(FirstShotGuiPatches));
 
             AssetAPI.OnStartupAssetsLoaded += AssetAPI_OnStartupAssetsLoaded;
+            LevelAPI.OnLevelCleanup += LevelAPI_OnLevelCleanup;
             Log.LogMessage("Loaded " + MODNAME);
         }
 
         private void AssetAPI_OnStartupAssetsLoaded()
         {
             ColorCrosshairDependency.Init();
+        }
+
+        private void LevelAPI_OnLevelCleanup()
+        {
+            SpreadPatches.OnCleanup();
         }
     }
 }

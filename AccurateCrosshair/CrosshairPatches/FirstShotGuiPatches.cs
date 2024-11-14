@@ -33,16 +33,14 @@ namespace AccurateCrosshair.CrosshairPatches
             smallCrosshair?.SetVisible(v: false);
         }
 
-        public void Enable(float size)
+        public void Enable()
         {
             // Don't generate a reticle if size is invalid or it is no different (i.e. it would just duplicate the crosshair)
-            if (smallCrosshair == null || size < 0 || size <= Configuration.minSize)
+            if (smallCrosshair == null)
                 return;
 
-            float crosshairSize = Math.Max(size * 0.2f, Configuration.minSize);
-
             smallCrosshair.SetVisible(v: true);
-            smallCrosshair.SetScale(crosshairSize / smallCrosshair.m_circleRadius);
+            smallCrosshair.SetScale(SpreadPatches.GetCrosshairSize(0.2f) / smallCrosshair.m_circleRadius);
         }
 
         public void RefreshAlpha()
@@ -56,6 +54,11 @@ namespace AccurateCrosshair.CrosshairPatches
 
             smallCrosshair.SetColor(smallCrosshair.m_crosshairColOrg = ColorCrosshairDependency.DefaultColor);
         }
+
+        public void RefreshSize()
+        {
+            smallCrosshair?.SetScale(SpreadPatches.GetCrosshairSize(0.2f) / smallCrosshair.m_circleRadius);
+        }
     }
 
     internal static class FirstShotGuiPatches
@@ -67,16 +70,21 @@ namespace AccurateCrosshair.CrosshairPatches
             crosshairGui.Disable();
         }
 
-        public static void Enable(float size, bool forceOn = false)
+        public static void Enable(bool forceOn = false)
         {
             // SpreadPatches uses a prefix so circleCrosshair might not be visible yet in that case.
-            if (forceOn || GuiManager.CrosshairLayer.m_circleCrosshair.GetVisible())
-                crosshairGui.Enable(size);
+            if (forceOn || SpreadPatches.CrosshairLayer.m_circleCrosshair.GetVisible())
+                crosshairGui.Enable();
         }
 
         public static void RefreshCrosshairColor()
         {
             crosshairGui.RefreshColor();
+        }
+
+        public static void RefreshCrosshairSize()
+        {
+            crosshairGui.RefreshSize();
         }
 
         [HarmonyPatch(typeof(GuiManager), nameof(GuiManager.Setup))]
