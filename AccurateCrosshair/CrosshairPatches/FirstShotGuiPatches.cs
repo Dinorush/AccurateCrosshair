@@ -1,5 +1,4 @@
 ﻿using HarmonyLib;
-using System;
 using UnityEngine;
 using AccurateCrosshair.PluginDependencies;
 
@@ -61,6 +60,7 @@ namespace AccurateCrosshair.CrosshairPatches
         }
     }
 
+    [HarmonyPatch]
     internal static class FirstShotGuiPatches
     {
         public static FirstShotGui crosshairGui = new();
@@ -98,7 +98,7 @@ namespace AccurateCrosshair.CrosshairPatches
         [HarmonyPatch(typeof(CrosshairGuiLayer), nameof(CrosshairGuiLayer.OnSetVisible))]
         [HarmonyWrapSafe]
         [HarmonyPostfix]
-        private static void MatchLayerVisibility(CrosshairGuiLayer __instance, bool visible)
+        private static void MatchLayerVisibility(bool visible)
         {
             crosshairGui.SetVisible(visible);
         }
@@ -106,7 +106,7 @@ namespace AccurateCrosshair.CrosshairPatches
         [HarmonyPatch(typeof(CrosshairGuiLayer), nameof(CrosshairGuiLayer.HideCircleCrosshair))]
         [HarmonyWrapSafe]
         [HarmonyPostfix]
-        private static void MatchCrosshairVisibility(CrosshairGuiLayer __instance)
+        private static void MatchCrosshairVisibility()
         {
             crosshairGui.Disable();
         }
@@ -114,7 +114,7 @@ namespace AccurateCrosshair.CrosshairPatches
         [HarmonyPatch(typeof(CrosshairGuiLayer), nameof(CrosshairGuiLayer.UpdateAlphaFromSettings))]
         [HarmonyWrapSafe]
         [HarmonyPostfix]
-        private static void MatchCrosshairAlpha(CrosshairGuiLayer __instance)
+        private static void MatchCrosshairAlpha()
         {
             crosshairGui.RefreshAlpha();
         }

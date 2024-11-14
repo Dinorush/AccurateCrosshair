@@ -19,7 +19,7 @@ namespace AccurateCrosshair.PluginDependencies
         public static void Init()
         {
             // If using the inner reticle to show first shot accuracy, need to match its color accordingly
-            if (HasColorCrosshair && Configuration.firstShotType == FirstShotType.Inner)
+            if (HasColorCrosshair)
                 UnsafeInit();
         }
 

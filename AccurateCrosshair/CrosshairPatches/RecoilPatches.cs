@@ -3,15 +3,17 @@ using UnityEngine;
 
 namespace AccurateCrosshair.CrosshairPatches
 {
+    [HarmonyPatch]
     internal static class RecoilPatches
     {
         [HarmonyPatch(typeof(CrosshairGuiLayer), nameof(CrosshairGuiLayer.ShowSpreadCircle))]
         [HarmonyWrapSafe]
         [HarmonyPostfix]
-        private static void EnableCrosshairMovement(CrosshairGuiLayer __instance, ref float crosshairSize)
+        private static void EnableCrosshairMovement(CrosshairGuiLayer __instance)
         {
             // For some reason, shotguns completely ignore world view blend and always aim where the camera points.
-            __instance.m_moveCircleCrosshair = !SpreadPatches.isShotgun;
+            if (Configuration.FollowsRecoil)
+                __instance.m_moveCircleCrosshair = !SpreadPatches.isShotgun;
         }
 
         [HarmonyPatch(typeof(FPS_RecoilSystem), nameof(FPS_RecoilSystem.FPS_Update))]
@@ -19,6 +21,8 @@ namespace AccurateCrosshair.CrosshairPatches
         [HarmonyPostfix]
         private static void TightCrosshairMovement(FPS_RecoilSystem __instance)
         {
+            if (!Configuration.FollowsRecoil) return;
+
             // Aside from the crosshair spread affecting recoil pos as described below, there appears to be some issue with the math
             // on the y-axis of the layer. I couldn't figure it out, so I just left in a scalar that appears to work.
 

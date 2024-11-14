@@ -19,27 +19,43 @@ namespace AccurateCrosshair.CrosshairPatches
         private static bool _cachedAim = false;
         private static bool _validGun = false;
 
-#pragma warning disable CS8618
         public static CrosshairGuiLayer CrosshairLayer;
-#pragma warning restore CS8618
+        private static float _crosshairSpeed;
         private static FirstPersonItemHolder? _cachedHolder;
         private static LerpingPairFloat? _cachedLookFoV;
         private static Coroutine? _smoothRoutine;
         private static float _spreadScalar = 1f;
         private static float _targetSpread;
 
+#pragma warning disable CS8618
+        static SpreadPatches()
+        {
+            Configuration.OnReload += OnConfigReload;
+        }
+#pragma warning restore CS8618
+
+
+        private static void OnConfigReload()
+        {
+            if (CrosshairLayer != null)
+            {
+                CrosshairLayer.m_circleSpeed = _crosshairSpeed * Configuration.SpeedScalar;
+                UpdateCrosshairSize();
+            }
+        }
+
         public static void UpdateSpreadScalar(float scalar)
         {
             _spreadScalar = scalar;
-            SetCrosshairSize(GetCrosshairSize());
+            UpdateCrosshairSize();
         }
 
-        public static void SetCrosshairSize(float crosshairSize)
+        public static void UpdateCrosshairSize()
         {
             if (!_validGun) return;
 
-            CrosshairLayer.ScaleToSize(CrosshairLayer.m_neutralCircleSize = crosshairSize);
-            if (Configuration.firstShotType == FirstShotType.Inner)
+            CrosshairLayer.ScaleToSize(CrosshairLayer.m_neutralCircleSize = GetCrosshairSize());
+            if (Configuration.FirstShotType == FirstShotType.Inner)
                 FirstShotGuiPatches.RefreshCrosshairSize();
         }
 
@@ -101,11 +117,11 @@ namespace AccurateCrosshair.CrosshairPatches
             _validGun = false;
             if (_cachedLookFoV == null) return false;
 
-            if (Configuration.firstShotType != FirstShotType.None)
+            if (Configuration.FirstShotType != FirstShotType.None)
                 FirstShotPatches.ResetStoredCrosshair();
 
             PlayerAgent player = PlayerManager.GetLocalPlayerAgent();
-            BulletWeapon? weapon = player.Inventory.m_wieldedItem.TryCast<BulletWeapon>();
+            BulletWeapon? weapon = player.Inventory.m_wieldedItem?.TryCast<BulletWeapon>();
             if (weapon == null) return false;
 
             isShotgun = weapon.TryCast<Shotgun>() != null;
@@ -121,7 +137,7 @@ namespace AccurateCrosshair.CrosshairPatches
                 spread = _cachedAim ? archetypeData.AimSpread : archetypeData.HipFireSpread;
             _targetSpread = spread;
 
-            if (!isShotgun && Configuration.firstShotType != FirstShotType.None)
+            if (!isShotgun && Configuration.FirstShotType != FirstShotType.None)
                 FirstShotPatches.SetStoredCrosshair(weapon);
             crosshairSize = GetCrosshairSize();
 
@@ -132,19 +148,19 @@ namespace AccurateCrosshair.CrosshairPatches
         {
             while (_validGun && _cachedLookFoV != null && _cachedLookFoV.CurrentLerp < 1f)
             {
-                SetCrosshairSize(GetCrosshairSize());
+                UpdateCrosshairSize();
                 yield return null;
             }
 
             _smoothRoutine = null;
             if (_cachedLookFoV == null) yield break;
-            SetCrosshairSize(GetCrosshairSize());
+            UpdateCrosshairSize();
         }
 
         public static float GetCrosshairSize(float scalar)
         {
             float sizeMultiplier = (float)(BASE_CROSSHAIR_SIZE / Math.Tan(Math.PI / 180.0 * _cachedLookFoV!.Current / 2));
-            return Math.Max(Configuration.minSize, _targetSpread * sizeMultiplier * scalar + EXTRA_BUFFER_SIZE);
+            return Math.Max(Configuration.MinSize, _targetSpread * sizeMultiplier * scalar + EXTRA_BUFFER_SIZE);
         }
 
         public static float GetCrosshairSize() => GetCrosshairSize(_spreadScalar);
@@ -155,7 +171,8 @@ namespace AccurateCrosshair.CrosshairPatches
         private static void AdjustResizeSpeed(CrosshairGuiLayer __instance)
         {
             CrosshairLayer = __instance;
-            __instance.m_circleSpeed *= Configuration.speedScalar;
+            _crosshairSpeed = __instance.m_circleSpeed;
+            __instance.m_circleSpeed *= Configuration.SpeedScalar;
         }
     }
 }

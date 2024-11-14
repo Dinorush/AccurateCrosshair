@@ -7,6 +7,7 @@ using BepInEx.Unity.IL2CPP.Utils.Collections;
 
 namespace AccurateCrosshair.CrosshairPatches
 {
+    [HarmonyPatch]
     internal static class FirstShotPatches
     {
         private static Coroutine? firstShotRoutine = null;
@@ -15,9 +16,9 @@ namespace AccurateCrosshair.CrosshairPatches
 
         private static void EnableSmallCrosshair(bool forceGuiOn = false)
         {
-            if (Configuration.firstShotType == FirstShotType.Match)
+            if (Configuration.FirstShotType == FirstShotType.Match)
                 SpreadPatches.UpdateSpreadScalar(0.2f);
-            else if (Configuration.firstShotType == FirstShotType.Inner)
+            else if (Configuration.FirstShotType == FirstShotType.Inner)
                 FirstShotGuiPatches.Enable(forceGuiOn);
         }
 
@@ -34,8 +35,8 @@ namespace AccurateCrosshair.CrosshairPatches
         public static void SetStoredCrosshair(BulletWeapon weapon)
         {
             ArchetypeDataBlock? archetypeData = weapon.ArchetypeData;
-            if (Configuration.firstShotType == FirstShotType.Match &&
-                archetypeData.FireMode != 0 && archetypeData.ShotDelay < Configuration.firstShotMinDelay)
+            if (Configuration.FirstShotType == FirstShotType.Match &&
+                archetypeData.FireMode != 0 && archetypeData.ShotDelay < Configuration.FirstShotMinDelay)
                 return;
 
             fireRecoilCooldown = weapon.m_fireRecoilCooldown;
