@@ -159,6 +159,7 @@ namespace AccurateCrosshair.CrosshairPatches
 
         public static float GetCrosshairSize(float scalar)
         {
+            scalar *= API.SpreadAPI.SpreadModifier;
             float sizeMultiplier = (float)(BASE_CROSSHAIR_SIZE / Math.Tan(Math.PI / 180.0 * _cachedLookFoV!.Current / 2));
             return Math.Max(Configuration.MinSize, _targetSpread * sizeMultiplier * scalar + EXTRA_BUFFER_SIZE);
         }
