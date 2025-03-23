@@ -22,10 +22,12 @@ namespace AccurateCrosshair.API
 
         private static void UpdateModifier()
         {
+            float oldMod = SpreadModifier;
             SpreadModifier = 1f;
             foreach (var modifier in _modifiers.Values)
                 SpreadModifier *= modifier;
-            SpreadPatches.UpdateCrosshairSize();
+            if (oldMod != SpreadModifier)
+                SpreadPatches.UpdateCrosshairSize();
         }
     }
 }
